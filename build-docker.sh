@@ -9,7 +9,7 @@ fi
 
 TAGS=()
 UPDATE=0
-VERSION=
+VERSION=104.0.5098.0
 
 OPTIND=1
 while getopts "t:uv:" opt; do
@@ -39,20 +39,20 @@ pushd $SRC &> /dev/null
 BASEIMAGE=$(grep 'FROM' Dockerfile|awk '{print $2}')
 if [ "$UPDATE" = "1" ]; then
   (set -x;
-    docker pull $BASEIMAGE
+    podman pull $BASEIMAGE
   )
 fi
 
-PARAMS=(--tag chromedp/headless-shell:$VERSION)
+PARAMS=(--tag quay.io/tchughesiv/ubi-chromedp-headless-shell:$VERSION)
 for TAG in ${TAGS[@]}; do
-  PARAMS+=(--tag chromedp/headless-shell:$TAG)
+  PARAMS+=(--tag quay.io/tchughesiv/ubi-chromedp-headless-shell:$TAG)
 done
 
 (set -x;
   rm -rf $SRC/out/$VERSION
   mkdir -p  $SRC/out/$VERSION
   tar -jxf $SRC/out/headless-shell-$VERSION.tar.bz2 -C $SRC/out/$VERSION/
-  docker build --build-arg VERSION=$VERSION ${PARAMS[@]} --quiet .
+  podman build --build-arg VERSION=$VERSION ${PARAMS[@]} -f Dockerfile --quiet /home/tohughes/workspace/chromium/src
 )
 
 popd &> /dev/null

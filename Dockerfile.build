@@ -1,0 +1,36 @@
+FROM fedora:36
+ARG VERSION
+
+# Instead of running build/install-build-deps.sh, run ...
+# https://chromium.googlesource.com/chromium/src/+/main/docs/linux/build_instructions.md#fedora
+RUN yum install -y git python bzip2 tar pkgconfig atk-devel alsa-lib-devel \
+    bison binutils brlapi-devel bluez-libs-devel bzip2-devel cairo-devel \
+    cups-devel dbus-devel dbus-glib-devel expat-devel fontconfig-devel \
+    freetype-devel gcc-c++ glib2-devel glibc.i686 gperf glib2-devel \
+    gtk3-devel java-1.*.0-openjdk-devel libatomic libcap-devel libffi-devel \
+    libgcc.i686 libgnome-keyring-devel libjpeg-devel libstdc++.i686 libX11-devel \
+    libXScrnSaver-devel libXtst-devel libxkbcommon-x11-devel ncurses-compat-libs \
+    nspr-devel nss-devel pam-devel pango-devel pciutils-devel \
+    pulseaudio-libs-devel zlib.i686 httpd mod_ssl php php-cli python-psutil wdiff \
+    xorg-x11-server-Xvfb \
+    wget
+
+RUN source <(curl -s https://gist.githubusercontent.com/tchughesiv/9af54f89f58a77a75f3226f5bcbbdc8a/raw/3f49c54141ad4c434c4a9e7f36a42ed3792898e5/get_layout_test_fonts.sh)
+
+RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+RUN cd depot_tools && ./update_depot_tools
+ENV PATH /depot_tools:$PATH
+
+WORKDIR /chromium-src
+
+RUN gclient runhooks
+RUN gn gen /out/$VERSION
+RUN autoninja -C /out/$VERSION chrome
+# RUN autoninja -C /out/$VERSION headless_shell
+# ? RUN autoninja -C /out/Debug headless_shell
+# ? RUN ninja -C /out/$VERSION headless_shell
+
+RUN autoninja -C /out/$VERSION unit_tests
+RUN /out/$VERSION/unit_tests
+
+# RUN out/$VERSION/headless_shell --remote-debugging-port=9222 https://youtube.com

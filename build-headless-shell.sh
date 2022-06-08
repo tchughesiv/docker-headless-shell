@@ -17,11 +17,11 @@
 SRC=$(realpath $(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd))
 
 ATTEMPTS=10
-BASE=/media/src
+BASE=/home/tohughes/workspace
 JOBS=$((`nproc` + 2))
 TTL=86400
 UPDATE=0
-VERSION=
+VERSION=104.0.5098.0
 
 OPTIND=1
 while getopts "a:b:j:t:uv:" opt; do
@@ -215,7 +215,7 @@ echo $VERSION > $PROJECT/.stamp
 # copy files
 mkdir -p $TMPDIR/headless-shell
 cp -a $PROJECT/{headless_shell,chrome_sandbox,.stamp} $TMPDIR/headless-shell
-cp -a $PROJECT/swiftshader/*.so $TMPDIR/headless-shell
+cp -a $PROJECT/*.so $TMPDIR/headless-shell
 
 popd &> /dev/null
 
