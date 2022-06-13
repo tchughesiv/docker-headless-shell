@@ -1,14 +1,12 @@
+FROM docker.io/chromedp/headless-shell:104.0.5098.0
+
 FROM ubi8-minimal
-ARG VERSION
+ARG VERSION=104.0.5098.0
 
 RUN \
     microdnf install -y nspr nss expat fontconfig uuid \
     && microdnf clean all
-COPY \
-    out/$VERSION/headless-shell/headless-shell \
-    out/$VERSION/headless-shell/.stamp \
-    out/$VERSION/headless-shell/*.so \
-    /headless-shell/
+COPY --from=0 /headless-shell /headless-shell/
 EXPOSE 9222
 ENV PATH /headless-shell:$PATH
 ENTRYPOINT [ "/headless-shell/headless-shell", "--no-sandbox", "--remote-debugging-address=0.0.0.0", "--remote-debugging-port=9222" ]
